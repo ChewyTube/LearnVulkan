@@ -131,6 +131,9 @@ public:
         initWindow();
         initVulkan();
         mainLoop();
+        if (debug) {
+            dataStatistics();
+        }
         cleanup();
     }
 private:
@@ -139,6 +142,11 @@ private:
     int frameIn_1_second = 0;
     int lastSecond = getTimeStamp_s();
     int thisSecond = getTimeStamp_s() + 1;
+
+    double startTimeStamp = getTimeStamp_us();
+    double endTimeStamp = 0;
+    double allTime = 0;
+    int allFrame = 0;
 
 
     VkInstance instance;    //保存实例句柄
@@ -239,6 +247,7 @@ private:
                 thisSecond = getTimeStamp_s();
                 if (thisSecond > lastSecond) {
                     std::cout << "FPS:" << frameIn_1_second << "\n";
+                    allFrame += frameIn_1_second;
                     frameIn_1_second = 0;
                     lastSecond++;
                 }
@@ -293,6 +302,18 @@ private:
 
         glfwDestroyWindow(window);
         glfwTerminate();
+    }
+
+    //数据统计
+    void dataStatistics() {
+        endTimeStamp = getTimeStamp_us();
+        allTime = (endTimeStamp - startTimeStamp) / 1000000;
+
+        allFrame += frameIn_1_second;//补足最后一秒中未计入的帧
+
+        std::cout << "运行时间：" << allTime << "s\n";
+        std::cout << "  总帧数：" << allFrame << "\n";
+        std::cout << "平均帧率：" << allFrame / allTime << "\n";
     }
 
     //提供着色器使用的每一个描述符绑定信息
